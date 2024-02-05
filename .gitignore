@@ -3,3 +3,4 @@ js/
 *.js
 *.lps
 *.map
+database.json

@@ -3,26 +3,34 @@ program WebApp;
 {$mode objfpc}
 
 uses
-  browserconsole, browserapp, JS, Classes, SysUtils, Web;
+  browserconsole, browserapp, JS, Classes, SysUtils, Web, models;
 
 type
-  TMyApplication = class(TBrowserApplication)
+  TMyHomePage = class(TBrowserApplication)
+  private
+    FDatabase: TCustomerDB;
+  protected
     procedure doRun; override;
   end;
 
-procedure TMyApplication.doRun;
+procedure TMyHomePage.doRun;
 
 begin
-  // Your code here
-  Terminate;
+  Writeln('Hello World from ObjectPascal!');
+  FDatabase:=TCustomerDB.Create(Self);
+  {FDatabase.Filter:='PHONE='+QuotedStr('2042311685');}
+  repeat
+    Writeln(FDatabase.Name);
+    FDatabase.DataSet.Next;
+  until FDatabase.DataSet.EOF;
 end;
 
 var
-  Application : TMyApplication;
+  Application : TMyHomePage;
 
 begin
-  Application:=TMyApplication.Create(nil);
+  Application:=TMyHomePage.Create(nil);
   Application.Initialize;
   Application.Run;
-  Application.Free;
 end.
+
