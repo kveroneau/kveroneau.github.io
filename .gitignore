@@ -1,6 +1,10 @@
+lib/
 backup/
 js/
 *.js
 *.lps
 *.map
+*.dbg
 database.json
+DBAdmin
+website.json

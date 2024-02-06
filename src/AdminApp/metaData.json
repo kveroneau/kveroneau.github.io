@@ -1,0 +1,12 @@
+{
+    "fields": [
+        {"name":"ID", "type":"int"},
+        {"name":"PATH", "type":"string"},
+        {"name":"TITLE", "type":"string"},
+        {"name":"CREATED", "type":"datetime"},
+        {"name":"MODIFIED", "type":"datetime"},
+        {"name":"CONTENTTYPE", "type":"int"},
+        {"name":"CONTENT", "type":"string"}
+    ],
+    "root": "Data"
+}
