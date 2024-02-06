@@ -3,29 +3,50 @@ program WebApp;
 {$mode objfpc}
 
 uses
-  browserconsole, browserapp, JS, Classes, SysUtils, Web, models;
+  browserconsole, browserapp, JS, Classes, SysUtils, Web, models, DateUtils,
+  webrouter;
 
 type
+
+  { TMyHomePage }
+
   TMyHomePage = class(TBrowserApplication)
   private
-    FDatabase: TCustomerDB;
+    FDatabase: TWebsiteDB;
+    Procedure HandleRoute(URL: String; aRoute: TRoute; Params: TStrings);
   protected
     procedure doRun; override;
   end;
 
-procedure TMyHomePage.doRun;
+function markdown(const s: string): string; external name 'window.marked.parse';
 
+procedure TMyHomePage.HandleRoute(URL: String; aRoute: TRoute; Params: TStrings
+  );
+var
+  buf: string;
+begin
+  FDatabase.Filter:='Path='+QuotedStr(URL);
+  GetHTMLElement('title').innerHTML:=FDatabase.Strings['Title'];
+  GetHTMLElement('modified').innerHTML:=FormatDateTime('dddd mmmm d, yyyy "at" hh:nn', FDatabase.Dates['Created']);
+  case FDatabase.Ints['ContentType'] of
+    0: buf:=FDatabase.Strings['Content']; // HTML Content
+    1: buf:=markdown(FDatabase.Strings['Content']); // Markdown Content
+  else
+    buf:='<b>Unknown Content-Type!</b>';
+  end;
+  GetHTMLElement('content').innerHTML:=buf;
+end;
+
+procedure TMyHomePage.doRun;
 begin
   { This web app so far is just the initial set-up of what's to come.
     Namely making it easy to use JSONDatasets which can be generated from
     an application. }
-  Writeln('Hello World from ObjectPascal!');
-  FDatabase:=TCustomerDB.Create(Self);
-  {FDatabase.Filter:='PHONE='+QuotedStr('5552220505');}
-  repeat
-    Writeln(FDatabase.Name);
-    FDatabase.DataSet.Next;
-  until FDatabase.DataSet.EOF;
+  FDatabase:=TWebsiteDB.Create(Self);
+  Router.InitHistory(hkHash);
+  Router.RegisterRoute('*', @HandleRoute);
+  if Router.RouteFromURL = '' then
+    Router.Push('/index');
 end;
 
 var
