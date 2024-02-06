@@ -5,6 +5,7 @@ js/
 *.lps
 *.map
 *.dbg
+*.res
 database.json
 DBAdmin
 website.json

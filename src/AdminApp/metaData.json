@@ -1,12 +1,12 @@
 {
     "fields": [
-        {"name":"ID", "type":"int"},
-        {"name":"PATH", "type":"string"},
-        {"name":"TITLE", "type":"string"},
-        {"name":"CREATED", "type":"datetime"},
-        {"name":"MODIFIED", "type":"datetime"},
-        {"name":"CONTENTTYPE", "type":"int"},
-        {"name":"CONTENT", "type":"string"}
+        {"name":"Id", "type":"int"},
+        {"name":"Path", "type":"string"},
+        {"name":"Title", "type":"string"},
+        {"name":"Created", "type":"date"},
+        {"name":"Modified", "type":"date"},
+        {"name":"ContentType", "type":"int"},
+        {"name":"Content", "type":"string"}
     ],
     "root": "Data"
 }
