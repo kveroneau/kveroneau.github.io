@@ -14,7 +14,13 @@ type
   { TDBAdminForm }
 
   TDBAdminForm = class(TForm)
+    ClearFilterBtn: TButton;
     DBContentType: TDBLookupComboBox;
+    ContentTypeFilter: TDBLookupComboBox;
+    FilterGrid: TDBGrid;
+    FilterPath: TEdit;
+    Label5: TLabel;
+    Label6: TLabel;
     TypeGrid: TDBGrid;
     TypeNavigator: TDBNavigator;
     TypesDS: TDataSource;
@@ -38,9 +44,12 @@ type
     JSONExporter: TSimpleJSONExporter;
     FilterTab: TTabSheet;
     TypesTab: TTabSheet;
+    procedure ClearFilterBtnClick(Sender: TObject);
+    procedure ContentTypeFilterChange(Sender: TObject);
     procedure DbfBeforePost(DataSet: TDataSet);
     procedure DbfNewRecord(DataSet: TDataSet);
     procedure ExportBtnClick(Sender: TObject);
+    procedure FilterPathChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -53,6 +62,7 @@ type
     FJSON: TJSONObject;
     procedure LoadDatabase;
     {$ENDIF}
+    procedure SetFilter;
   public
 
   end;
@@ -106,9 +116,28 @@ begin
   {$ENDIF}
 end;
 
+procedure TDBAdminForm.FilterPathChange(Sender: TObject);
+begin
+  SetFilter;
+end;
+
 procedure TDBAdminForm.DbfBeforePost(DataSet: TDataSet);
 begin
   DataSet.Fields.FieldByName('MODIFIED').AsDateTime:=Now;
+end;
+
+procedure TDBAdminForm.ContentTypeFilterChange(Sender: TObject);
+begin
+  SetFilter;
+  if dbf.Filtered and (FilterPath.Text = '') then
+    DBTabs.TabIndex:=1;
+end;
+
+procedure TDBAdminForm.ClearFilterBtnClick(Sender: TObject);
+begin
+  ContentTypeFilter.ItemIndex:=-1;
+  FilterPath.Text:='';
+  dbf.Filtered:=False;
 end;
 
 procedure TDBAdminForm.DbfNewRecord(DataSet: TDataSet);
@@ -147,6 +176,28 @@ end;
 procedure TDBAdminForm.TypesTabShow(Sender: TObject);
 begin
   TypeGrid.Width:=600;
+end;
+
+procedure TDBAdminForm.SetFilter;
+var
+  fbuf: string;
+begin
+  if Length(FilterPath.Text) > 2 then
+  begin
+    fbuf:='PATH='+QuotedStr('/'+FilterPath.Text+'*');
+    if ContentTypeFilter.ItemIndex > -1 then
+      dbf.Filter:=fbuf+' and CONTENTTYPE='+IntToStr(ContentTypeFilter.ItemIndex)
+    else
+      dbf.Filter:=fbuf;
+    dbf.Filtered:=True;
+  end
+  else if ContentTypeFilter.ItemIndex > -1 then
+  begin
+    dbf.Filter:='CONTENTTYPE='+IntToStr(ContentTypeFilter.ItemIndex);
+    dbf.Filtered:=True;
+  end
+  else
+    dbf.Filtered:=False;
 end;
 
 {$IFDEF JSONDS}
