@@ -15,6 +15,7 @@ type
 
   TDBAdminForm = class(TForm)
     Dbf: TDbf;
+    GridNavigator: TDBNavigator;
     ExportBtn: TButton;
     DataSource: TDataSource;
     DBContentType: TDBEdit;
@@ -132,7 +133,8 @@ end;
 procedure TDBAdminForm.GridTabShow(Sender: TObject);
 begin
   DBGrid.Width:=GridTab.ClientWidth;
-  DBGrid.Height:=GridTab.ClientHeight;
+  DBGrid.Height:=GridTab.ClientHeight-GridNavigator.Height;
+  GridNavigator.Top:=DBGrid.Height;
 end;
 
 {$IFDEF JSONDS}

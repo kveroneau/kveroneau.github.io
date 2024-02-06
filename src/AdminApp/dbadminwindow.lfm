@@ -148,6 +148,24 @@ object DBAdminForm: TDBAdminForm
         DataSource = DataSource
         TabOrder = 0
       end
+      object GridNavigator: TDBNavigator
+        Left = 152
+        Height = 25
+        Top = 328
+        Width = 241
+        BevelOuter = bvNone
+        ChildSizing.EnlargeHorizontal = crsScaleChilds
+        ChildSizing.EnlargeVertical = crsScaleChilds
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 100
+        ClientHeight = 25
+        ClientWidth = 241
+        DataSource = DataSource
+        Options = []
+        TabOrder = 1
+      end
     end
   end
   object DataSource: TDataSource
