@@ -56,10 +56,10 @@ function TMyHomePage.GetDateInfo: string;
 var
   ddiff: TDateTime;
 begin
-  Result:='<b>Created on</b> '+FormatDateTime(DATE_FORMAT, FDatabase.Dates['Created']);
+  Result:=FormatDateTime(DATE_FORMAT, FDatabase.Dates['Created']);
   ddiff:=FDatabase.Dates['Modified']-FDatabase.Dates['Created'];
   if ddiff >= 1.0 then
-    Result:=Result+'<br/><b>Last Updated on</b> '+FormatDateTime(DATE_FORMAT, FDatabase.Dates['Modified']);
+    Result:='<b>Created on</b> '+Result+'<br/><b>Last Updated on</b> '+FormatDateTime(DATE_FORMAT, FDatabase.Dates['Modified']);
 end;
 
 procedure TMyHomePage.doRun;
