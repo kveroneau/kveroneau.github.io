@@ -18,6 +18,9 @@ type
     procedure doRun; override;
   end;
 
+const
+  WEBSITE_TITLE = 'kveroneau.github.io';
+
 function markdown(const s: string): string; external name 'window.marked.parse';
 
 procedure TMyHomePage.HandleRoute(URL: String; aRoute: TRoute; Params: TStrings
@@ -28,12 +31,15 @@ begin
   FDatabase.Filter:='Path='+QuotedStr(URL);
   if FDatabase.DataSet.EOF then
   begin
-    GetHTMLElement('title').innerHTML:='kveroneau.github.io';
+    GetHTMLElement('title').innerHTML:=WEBSITE_TITLE;
+    document.title:='Resource not found';
     GetHTMLElement('modified').innerHTML:='An error has occured.';
     GetHTMLElement('content').innerHTML:='<h1>Resource not found.</h1>';
     Exit;
   end;
   GetHTMLElement('title').innerHTML:=FDatabase.Strings['Title'];
+  if FDatabase.Strings['Title'] <> WEBSITE_TITLE then
+    document.title:=FDatabase.Strings['Title']+' :: '+WEBSITE_TITLE;
   GetHTMLElement('modified').innerHTML:=FormatDateTime('dddd mmmm d, yyyy "at" hh:nn', FDatabase.Dates['Created']);
   case FDatabase.Ints['ContentType'] of
     0: buf:=FDatabase.Strings['Content']; // HTML Content
