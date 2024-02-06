@@ -26,6 +26,13 @@ var
   buf: string;
 begin
   FDatabase.Filter:='Path='+QuotedStr(URL);
+  if FDatabase.DataSet.EOF then
+  begin
+    GetHTMLElement('title').innerHTML:='kveroneau.github.io';
+    GetHTMLElement('modified').innerHTML:='An error has occured.';
+    GetHTMLElement('content').innerHTML:='<h1>Resource not found.</h1>';
+    Exit;
+  end;
   GetHTMLElement('title').innerHTML:=FDatabase.Strings['Title'];
   GetHTMLElement('modified').innerHTML:=FormatDateTime('dddd mmmm d, yyyy "at" hh:nn', FDatabase.Dates['Created']);
   case FDatabase.Ints['ContentType'] of
