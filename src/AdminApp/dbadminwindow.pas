@@ -17,11 +17,11 @@ type
     Dbf: TDbf;
     ExportBtn: TButton;
     DataSource: TDataSource;
-    DBAddress: TDBEdit;
-    DBMemo: TDBMemo;
+    DBContentType: TDBEdit;
+    DBContent: TDBMemo;
     DBNavigator: TDBNavigator;
-    DBPhone: TDBEdit;
-    DBName: TDBEdit;
+    DBTitle: TDBEdit;
+    DBPath: TDBEdit;
     DBGrid: TDBGrid;
     DBTabs: TPageControl;
     FormTab: TTabSheet;
@@ -37,6 +37,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure FormTabResize(Sender: TObject);
     procedure GridTabShow(Sender: TObject);
   private
     {$IFDEF JSONDS}
@@ -118,6 +119,14 @@ procedure TDBAdminForm.FormResize(Sender: TObject);
 begin
   DBTabs.Width:=ClientWidth;
   DBTabs.Height:=ClientHeight;
+end;
+
+procedure TDBAdminForm.FormTabResize(Sender: TObject);
+begin
+  DBContent.Width:=FormTab.ClientWidth-DBContent.Left-30;
+  DBContent.Height:=FormTab.ClientHeight-DBContent.Top-100;
+  DBNavigator.Top:=FormTab.ClientHeight-50;
+  ExportBtn.Top:=FormTab.ClientHeight-50;
 end;
 
 procedure TDBAdminForm.GridTabShow(Sender: TObject);
