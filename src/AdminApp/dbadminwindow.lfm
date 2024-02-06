@@ -83,17 +83,6 @@ object DBAdminForm: TDBAdminForm
         MaxLength = 60
         TabOrder = 1
       end
-      object DBContentType: TDBEdit
-        Left = 128
-        Height = 30
-        Top = 88
-        Width = 352
-        DataField = 'ContentType'
-        DataSource = DataSource
-        Alignment = taRightJustify
-        MaxLength = 0
-        TabOrder = 2
-      end
       object DBContent: TDBMemo
         Left = 128
         Height = 160
@@ -102,7 +91,7 @@ object DBAdminForm: TDBAdminForm
         DataField = 'Content'
         DataSource = DataSource
         ScrollBars = ssAutoVertical
-        TabOrder = 3
+        TabOrder = 2
       end
       object DBNavigator: TDBNavigator
         Left = 128
@@ -120,7 +109,7 @@ object DBAdminForm: TDBAdminForm
         ClientWidth = 241
         DataSource = DataSource
         Options = []
-        TabOrder = 4
+        TabOrder = 3
       end
       object ExportBtn: TButton
         Left = 405
@@ -129,6 +118,20 @@ object DBAdminForm: TDBAdminForm
         Width = 75
         Caption = 'Export'
         OnClick = ExportBtnClick
+        TabOrder = 4
+      end
+      object DBContentType: TDBLookupComboBox
+        Left = 128
+        Height = 30
+        Top = 88
+        Width = 256
+        DataField = 'CONTENTTYPE'
+        DataSource = DataSource
+        KeyField = 'ID'
+        ListField = 'NAME'
+        ListFieldIndex = 0
+        ListSource = TypesDS
+        LookupCache = False
         TabOrder = 5
       end
     end
@@ -163,6 +166,43 @@ object DBAdminForm: TDBAdminForm
         ClientHeight = 25
         ClientWidth = 241
         DataSource = DataSource
+        Options = []
+        TabOrder = 1
+      end
+    end
+    object FilterTab: TTabSheet
+      Caption = 'Filtering'
+    end
+    object TypesTab: TTabSheet
+      Caption = 'Content Types'
+      ClientHeight = 353
+      ClientWidth = 502
+      OnShow = TypesTabShow
+      object TypeGrid: TDBGrid
+        Left = 24
+        Height = 244
+        Top = 32
+        Width = 464
+        Color = clWindow
+        Columns = <>
+        DataSource = TypesDS
+        TabOrder = 0
+      end
+      object TypeNavigator: TDBNavigator
+        Left = 64
+        Height = 25
+        Top = 296
+        Width = 241
+        BevelOuter = bvNone
+        ChildSizing.EnlargeHorizontal = crsScaleChilds
+        ChildSizing.EnlargeVertical = crsScaleChilds
+        ChildSizing.ShrinkHorizontal = crsScaleChilds
+        ChildSizing.ShrinkVertical = crsScaleChilds
+        ChildSizing.Layout = cclLeftToRightThenTopToBottom
+        ChildSizing.ControlsPerLine = 100
+        ClientHeight = 25
+        ClientWidth = 241
+        DataSource = TypesDS
         Options = []
         TabOrder = 1
       end
@@ -280,5 +320,37 @@ object DBAdminForm: TDBAdminForm
     FormatSettings.IndentSize = 0
     Left = 560
     Top = 304
+  end
+  object TypesDB: TDbf
+    FilePath = 'data/'
+    IndexDefs = <    
+      item
+        IndexFile = 'TYPEID'
+        SortField = 'ID'
+        Options = [ixPrimary, ixUnique]
+      end>
+    OpenMode = omAutoCreate
+    StoreDefs = True
+    TableName = 'types.dbf'
+    TableLevel = 4
+    Active = True
+    FieldDefs = <    
+      item
+        Name = 'ID'
+        DataType = ftInteger
+      end    
+      item
+        Name = 'NAME'
+        DataType = ftString
+        Size = 40
+      end>
+    FilterOptions = []
+    Left = 560
+    Top = 16
+  end
+  object TypesDS: TDataSource
+    DataSet = TypesDB
+    Left = 559
+    Top = 88
   end
 end

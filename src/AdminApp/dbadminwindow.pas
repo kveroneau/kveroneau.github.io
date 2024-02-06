@@ -14,11 +14,15 @@ type
   { TDBAdminForm }
 
   TDBAdminForm = class(TForm)
+    DBContentType: TDBLookupComboBox;
+    TypeGrid: TDBGrid;
+    TypeNavigator: TDBNavigator;
+    TypesDS: TDataSource;
     Dbf: TDbf;
+    TypesDB: TDbf;
     GridNavigator: TDBNavigator;
     ExportBtn: TButton;
     DataSource: TDataSource;
-    DBContentType: TDBEdit;
     DBContent: TDBMemo;
     DBNavigator: TDBNavigator;
     DBTitle: TDBEdit;
@@ -32,6 +36,8 @@ type
     Label3: TLabel;
     Label4: TLabel;
     JSONExporter: TSimpleJSONExporter;
+    FilterTab: TTabSheet;
+    TypesTab: TTabSheet;
     procedure DbfBeforePost(DataSet: TDataSet);
     procedure DbfNewRecord(DataSet: TDataSet);
     procedure ExportBtnClick(Sender: TObject);
@@ -40,6 +46,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormTabResize(Sender: TObject);
     procedure GridTabShow(Sender: TObject);
+    procedure TypesTabShow(Sender: TObject);
   private
     {$IFDEF JSONDS}
     FDataSet: TExtJSJSONDataSet;
@@ -135,6 +142,11 @@ begin
   DBGrid.Width:=GridTab.ClientWidth;
   DBGrid.Height:=GridTab.ClientHeight-GridNavigator.Height;
   GridNavigator.Top:=DBGrid.Height;
+end;
+
+procedure TDBAdminForm.TypesTabShow(Sender: TObject);
+begin
+  TypeGrid.Width:=600;
 end;
 
 {$IFDEF JSONDS}
