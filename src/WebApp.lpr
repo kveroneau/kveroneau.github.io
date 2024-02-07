@@ -1,6 +1,7 @@
 program WebApp;
 
 {$mode objfpc}
+{$modeswitch externalclass}
 
 uses
   browserconsole, browserapp, JS, Classes, SysUtils, Web, models, DateUtils,
@@ -15,8 +16,13 @@ type
     FDatabase: TWebsiteDB;
     Procedure HandleRoute(URL: String; aRoute: TRoute; Params: TStrings);
     function GetDateInfo: string;
+    function CodeHighlight(lang, content: string): string;
+    function RenderContent(ct: Integer): string;
   protected
     procedure doRun; override;
+  public
+    function GetContent(APath: string): string;
+    procedure AfterInit(RealRun: Boolean);
   end;
 
 const
@@ -24,11 +30,15 @@ const
   DATE_FORMAT = 'dddd mmmm d, yyyy "at" hh:nn';
 
 function markdown(const s: string): string; external name 'window.marked.parse';
+procedure initHighlight; external name 'window.hljs.initHighlighting';
+procedure RunJS(s: string); external name 'window.eval';
+procedure RunPy(options: TJSObject); external name 'window.brython';
 
 procedure TMyHomePage.HandleRoute(URL: String; aRoute: TRoute; Params: TStrings
   );
 var
   buf: string;
+  ct: integer;
 begin
   FDatabase.Filter:='Path='+QuotedStr(URL);
   if FDatabase.DataSet.EOF then
@@ -43,13 +53,15 @@ begin
   if FDatabase.Strings['Title'] <> WEBSITE_TITLE then
     document.title:=FDatabase.Strings['Title']+' :: '+WEBSITE_TITLE;
   GetHTMLElement('modified').innerHTML:=GetDateInfo;
-  case FDatabase.Ints['ContentType'] of
-    0: buf:=FDatabase.Strings['Content']; // HTML Content
-    1: buf:=markdown(FDatabase.Strings['Content']); // Markdown Content
-  else
-    buf:='<b>Unknown Content-Type!</b>';
-  end;
-  GetHTMLElement('content').innerHTML:=buf;
+  ct:=FDatabase.Ints['ContentType'];
+  GetHTMLElement('content').innerHTML:=RenderContent(ct);
+  if (ct > 99) and (ct < 200) then
+    initHighlight
+  else if ct = 50 then
+    RunJS(FDatabase.Strings['Content'])
+  else if ct = 51 then
+    RunJS('window.brython({pythonpath:[''/pyapi'']});');
+  //RunPy(TJSObject.new);
 end;
 
 function TMyHomePage.GetDateInfo: string;
@@ -62,14 +74,55 @@ begin
     Result:='<b>Created on</b> '+Result+'<br/><b>Last Updated on</b> '+FormatDateTime(DATE_FORMAT, FDatabase.Dates['Modified']);
 end;
 
+function TMyHomePage.CodeHighlight(lang, content: string): string;
+begin
+  Result:='<pre><code class="language-'+lang+'">'+content+'</code></pre>';
+end;
+
+function TMyHomePage.RenderContent(ct: Integer): string;
+begin
+  case ct of
+    0: Result:=FDatabase.Strings['Content']; // HTML Content
+    1: Result:=markdown(FDatabase.Strings['Content']); // Markdown Content
+    50: Result:='Loading JavaScript Application, please wait...';
+    51: Result:='<script type="text/python">'+FDatabase.Strings['Content']+'</script>';
+    100: Result:=CodeHighlight('pascal',FDatabase.Strings['Content']);
+    101: Result:=CodeHighlight('bash',FDatabase.Strings['Content']);
+    102: Result:=CodeHighlight('python',FDatabase.Strings['Content']);
+    103: Result:=CodeHighlight('ruby',FDatabase.Strings['Content']);
+    104: Result:=CodeHighlight('c',FDatabase.Strings['Content']);
+    105: Result:=CodeHighlight('makefile',FDatabase.Strings['Content']);
+    106: Result:=CodeHighlight('javascript',FDatabase.Strings['Content']);
+  else
+    Result:='<b>Unknown Content-Type!</b>';
+  end;
+end;
+
 procedure TMyHomePage.doRun;
 begin
   { This web app so far is just the initial set-up of what's to come.
     Namely making it easy to use JSONDatasets which can be generated from
     an application. }
   FDatabase:=TWebsiteDB.Create(Self);
+  GetContent('/NaR'); // This triggers the compiler to compile this method.
   Router.InitHistory(hkHash);
   Router.RegisterRoute('*', @HandleRoute);
+  AfterInit(False); // Registers method with compiler for export in JavaScript.
+end;
+
+function TMyHomePage.GetContent(APath: string): string;
+begin
+  FDatabase.Filter:='Path='+QuotedStr(APath);
+  if FDatabase.DataSet.EOF then
+    Result:=''
+  else
+    Result:=RenderContent(FDatabase.Ints['ContentType']);
+end;
+
+procedure TMyHomePage.AfterInit(RealRun: Boolean);
+begin
+  if not RealRun then
+    Exit;
   if Router.RouteFromURL = '' then
     Router.Push('/index');
 end;

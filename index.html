@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>kveroneau.github.io</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"/>
+  <link rel="stylesheet" href="https://yandex.st/highlightjs/8.0/styles/default.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/lib/marked.umd.min.js"></script>
+  <script src="https://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js"></script>
   <script src="WebApp.min.js?v1"></script>
+  <script src="src/api.js"></script>
 </head>
-<body onload="rtl.showUncaughtExceptions=true; rtl.run();">
+<body onload="rtl.showUncaughtExceptions=true; rtl.run(); initAPI();">
   <section class="section">
     <div class="container">
       <h1 class="title" id="title">kveroneau.github.io</h1>
