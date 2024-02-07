@@ -20,7 +20,9 @@ type
 
 implementation
 
+{$IFDEF EMBEDSITE}
 {$R AdminApp/website.json}
+{$ENDIF}
 
 { TWebsiteDB }
 
@@ -28,7 +30,9 @@ constructor TWebsiteDB.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Datafile:='website';
+  {$IFDEF EMBEDSITE}
   Active:=True;
+  {$ENDIF}
 end;
 
 end.

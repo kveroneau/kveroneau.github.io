@@ -18,6 +18,10 @@ type
     function GetDateInfo: string;
     function CodeHighlight(lang, content: string): string;
     function RenderContent(ct: Integer): string;
+    procedure HandleRequest;
+    {$IFNDEF EMBEDSITE}
+    procedure TableLoadError;
+    {$ENDIF}
   protected
     procedure doRun; override;
   public
@@ -98,16 +102,36 @@ begin
   end;
 end;
 
+procedure TMyHomePage.HandleRequest;
+begin
+  GetContent('/NaR'); // This triggers the compiler to compile this method.
+  Router.InitHistory(hkHash);
+  Router.RegisterRoute('*', @HandleRoute);
+  AfterInit(False); // Registers method with compiler for export in JavaScript.
+end;
+
+{$IFNDEF EMBEDSITE}
+procedure TMyHomePage.TableLoadError;
+begin
+  document.getElementById('title').innerHTML:='Framework Error!';
+  document.getElementById('content').innerHTML:='The Framework was unable to locate and open it''s database file.';
+  Terminate(2);
+end;
+{$ENDIF}
+
 procedure TMyHomePage.doRun;
 begin
   { This web app so far is just the initial set-up of what's to come.
     Namely making it easy to use JSONDatasets which can be generated from
     an application. }
   FDatabase:=TWebsiteDB.Create(Self);
-  GetContent('/NaR'); // This triggers the compiler to compile this method.
-  Router.InitHistory(hkHash);
-  Router.RegisterRoute('*', @HandleRoute);
-  AfterInit(False); // Registers method with compiler for export in JavaScript.
+  {$IFNDEF EMBEDSITE}
+  FDatabase.OnSuccess:=@HandleRequest;
+  FDatabase.OnFailure:=@TableLoadError;
+  FDatabase.Active:=True;
+  {$ELSE}
+  HandleRequest;
+  {$ENDIF}
 end;
 
 function TMyHomePage.GetContent(APath: string): string;
@@ -121,7 +145,7 @@ end;
 
 procedure TMyHomePage.AfterInit(RealRun: Boolean);
 begin
-  if not RealRun then
+  if {$IFDEF EMBEDSITE}not{$ENDIF}RealRun then
     Exit;
   if Router.RouteFromURL = '' then
     Router.Push('/index');
