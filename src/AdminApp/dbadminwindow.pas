@@ -7,13 +7,14 @@ interface
 uses
   Classes, SysUtils, SQLite3Conn, SQLDB, DB, dbf, fpsimplejsonexport, Forms,
   Controls, Graphics, Dialogs, DBCtrls, ComCtrls, DBGrids, StdCtrls, fpjson,
-  jsonparser, DateUtils{$IFDEF JSONDS}, extjsdataset{$ENDIF};
+  jsonparser, DateUtils, EditWindow{$IFDEF JSONDS}, extjsdataset{$ENDIF};
 
 type
 
   { TDBAdminForm }
 
   TDBAdminForm = class(TForm)
+    SrcEditBtn: TButton;
     ClearFilterBtn: TButton;
     DBContentType: TDBLookupComboBox;
     ContentTypeFilter: TDBLookupComboBox;
@@ -46,6 +47,8 @@ type
     TypesTab: TTabSheet;
     procedure ClearFilterBtnClick(Sender: TObject);
     procedure ContentTypeFilterChange(Sender: TObject);
+    procedure DataSourceDataChange(Sender: TObject; Field: TField);
+    procedure DBContentTypeChange(Sender: TObject);
     procedure DbfBeforePost(DataSet: TDataSet);
     procedure DbfNewRecord(DataSet: TDataSet);
     procedure ExportBtnClick(Sender: TObject);
@@ -55,6 +58,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormTabResize(Sender: TObject);
     procedure GridTabShow(Sender: TObject);
+    procedure SrcEditBtnClick(Sender: TObject);
     procedure TypesTabShow(Sender: TObject);
   private
     {$IFDEF JSONDS}
@@ -78,6 +82,7 @@ implementation
 
 procedure TDBAdminForm.FormCreate(Sender: TObject);
 begin
+  SrcEditBtn.Visible:=False;
   {$IFDEF JSONDS}
   FDataSet:=TExtJSJSONDataSet.Create(Self);
   LoadDatabase;
@@ -129,8 +134,32 @@ end;
 procedure TDBAdminForm.ContentTypeFilterChange(Sender: TObject);
 begin
   SetFilter;
+  {$IFDEF ANNOYING}
   if dbf.Filtered and (FilterPath.Text = '') then
     DBTabs.TabIndex:=1;
+  {$ENDIF}
+end;
+
+procedure TDBAdminForm.DataSourceDataChange(Sender: TObject; Field: TField);
+begin
+  DBContentTypeChange(Sender);
+end;
+
+procedure TDBAdminForm.DBContentTypeChange(Sender: TObject);
+var
+  kv: integer;
+begin
+  try
+    kv:=DBContentType.KeyValue;
+    if (kv = 0) or (kv = 50) or (kv = 51) then
+      SrcEditBtn.Visible:=True
+    else if (kv > 99) and (kv < 200) then
+      SrcEditBtn.Visible:=True
+    else
+      SrcEditBtn.Visible:=False;
+  except
+    On EVariantError do SrcEditBtn.Visible:=False;
+  end;
 end;
 
 procedure TDBAdminForm.ClearFilterBtnClick(Sender: TObject);
@@ -173,6 +202,19 @@ begin
   GridNavigator.Top:=DBGrid.Height;
 end;
 
+procedure TDBAdminForm.SrcEditBtnClick(Sender: TObject);
+begin
+  DataSource.Edit;
+  case DBContentType.KeyValue of
+    0: DBContent.Text:=SourceEditForm.EditHTML(DBContent.Text);
+    100: DBContent.Text:=SourceEditForm.EditObjPas(DBContent.Text);
+    102: DBContent.Text:=SourceEditForm.EditPython(DBContent.Text);
+    50: DBContent.Text:=SourceEditForm.EditJS(DBContent.Text);
+    106: DBContent.Text:=SourceEditForm.EditJS(DBContent.Text);
+    51: DBContent.Text:=SourceEditForm.EditPython(DBContent.Text);
+  end;
+end;
+
 procedure TDBAdminForm.TypesTabShow(Sender: TObject);
 begin
   TypeGrid.Width:=600;
@@ -186,14 +228,14 @@ begin
   begin
     fbuf:='PATH='+QuotedStr('/'+FilterPath.Text+'*');
     if ContentTypeFilter.ItemIndex > -1 then
-      dbf.Filter:=fbuf+' and CONTENTTYPE='+IntToStr(ContentTypeFilter.ItemIndex)
+      dbf.Filter:=fbuf+' and CONTENTTYPE='+IntToStr(ContentTypeFilter.KeyValue)
     else
       dbf.Filter:=fbuf;
     dbf.Filtered:=True;
   end
   else if ContentTypeFilter.ItemIndex > -1 then
   begin
-    dbf.Filter:='CONTENTTYPE='+IntToStr(ContentTypeFilter.ItemIndex);
+    dbf.Filter:='CONTENTTYPE='+IntToStr(ContentTypeFilter.KeyValue);
     dbf.Filtered:=True;
   end
   else

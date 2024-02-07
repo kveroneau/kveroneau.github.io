@@ -132,7 +132,17 @@ object DBAdminForm: TDBAdminForm
         ListFieldIndex = 0
         ListSource = TypesDS
         LookupCache = False
+        OnChange = DBContentTypeChange
         TabOrder = 5
+      end
+      object SrcEditBtn: TButton
+        Left = 16
+        Height = 25
+        Top = 312
+        Width = 96
+        Caption = 'Source Editor'
+        OnClick = SrcEditBtnClick
+        TabOrder = 6
       end
     end
     object GridTab: TTabSheet
@@ -149,7 +159,7 @@ object DBAdminForm: TDBAdminForm
         Color = clWindow
         Columns = <>
         DataSource = DataSource
-        Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgAutoSizeColumns, dgDblClickAutoSize]
+        Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgAutoSizeColumns, dgDblClickAutoSize]
         TabOrder = 0
       end
       object GridNavigator: TDBNavigator
@@ -250,7 +260,7 @@ object DBAdminForm: TDBAdminForm
           end        
           item
             Title.Caption = 'MODIFIED'
-            Width = 169
+            Width = 170
             FieldName = 'MODIFIED'
           end        
           item
@@ -300,6 +310,7 @@ object DBAdminForm: TDBAdminForm
   end
   object DataSource: TDataSource
     DataSet = Dbf
+    OnDataChange = DataSourceDataChange
     Left = 559
     Top = 232
   end

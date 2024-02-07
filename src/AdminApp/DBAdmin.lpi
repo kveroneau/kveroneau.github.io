@@ -104,6 +104,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="SynEdit"/>
+      </Item>
+      <Item>
         <PackageName Value="DBFLaz"/>
       </Item>
       <Item>
@@ -128,6 +131,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DBAdminWindow"/>
+      </Unit>
+      <Unit>
+        <Filename Value="editwindow.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="SourceEditForm"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="EditWindow"/>
       </Unit>
     </Units>
   </ProjectOptions>
@@ -158,6 +168,9 @@
       </Item>
       <Item>
         <Name Value="EFOpenError"/>
+      </Item>
+      <Item>
+        <Name Value="EVariantTypeCastError"/>
       </Item>
     </Exceptions>
   </Debugging>

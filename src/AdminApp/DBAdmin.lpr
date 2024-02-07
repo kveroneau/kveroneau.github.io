@@ -10,7 +10,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, lazdbexport, DBAdminWindow
+  Forms, lazdbexport, DBAdminWindow, EditWindow
   { you can add units after this };
 
 {$R *.res}
@@ -21,6 +21,7 @@ begin
   Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TDBAdminForm, DBAdminForm);
+  Application.CreateForm(TSourceEditForm, SourceEditForm);
   Application.Run;
 end.
 
