@@ -3,7 +3,7 @@ program PuterBlogger;
 {$mode objfpc}
 
 uses
-  browserapp, JS, Classes, SysUtils, Web, widgets;
+  browserapp, JS, Classes, SysUtils, Web, widgets, puterjs;
 
 type
 
@@ -26,6 +26,7 @@ end;
 
 procedure TPuterBlogApp.doRun;
 begin
+  Puter.WindowTitle:='Puter Blogger at your service';
   FName:=MakeInputField('name', 'Your Name:', 'Some Name');
   MakeButton('test2', 'Another Button', @ButtonClick);
 end;

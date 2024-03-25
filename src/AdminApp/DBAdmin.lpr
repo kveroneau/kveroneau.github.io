@@ -10,7 +10,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, lazdbexport, DBAdminWindow, EditWindow
+  Forms, DBAdminWindow, EditWindow
   { you can add units after this };
 
 {$R *.res}

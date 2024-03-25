@@ -5,7 +5,7 @@ unit DBAdminWindow;
 interface
 
 uses
-  Classes, SysUtils, SQLite3Conn, SQLDB, DB, dbf, fpsimplejsonexport, Forms,
+  Classes, SysUtils, SQLite3Conn, SQLDB, DB, dbf, dbftojson, Forms,
   Controls, Graphics, Dialogs, DBCtrls, ComCtrls, DBGrids, StdCtrls, fpjson,
   jsonparser, DateUtils, EditWindow{$IFDEF JSONDS}, extjsdataset{$ENDIF};
 
@@ -42,7 +42,6 @@ type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
-    JSONExporter: TSimpleJSONExporter;
     FilterTab: TTabSheet;
     TypesTab: TTabSheet;
     procedure ClearFilterBtnClick(Sender: TObject);
@@ -96,22 +95,15 @@ procedure TDBAdminForm.ExportBtnClick(Sender: TObject);
 {$IFNDEF JSONDS}
 var
   s: TStringStream;
-  buf: string;
   json: TJSONObject;
 {$ENDIF}
 begin
   {$IFDEF JSONDS}
   FDataSet.SaveToFile('database.json', True);
   {$ELSE}
-  json:=TJSONObject.Create;
+  json:=ExportDBF(Dbf);
   s:=TStringStream.Create;
   try
-    s.LoadFromFile('metaData.json');
-    json.Objects['metaData']:=GetJSON(s.DataString) as TJSONObject;
-    s.Clear;
-    JSONExporter.ExportToStream(s);
-    json.Arrays['Data']:=GetJSON(s.DataString) as TJSONArray;
-    s.Clear;
     s.WriteString(json.AsJSON);
     s.SaveToFile('website.json');
   finally

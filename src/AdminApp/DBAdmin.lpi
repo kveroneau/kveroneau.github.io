@@ -104,13 +104,13 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="klib"/>
+      </Item>
+      <Item>
         <PackageName Value="SynEdit"/>
       </Item>
       <Item>
         <PackageName Value="DBFLaz"/>
-      </Item>
-      <Item>
-        <PackageName Value="lazdbexport"/>
       </Item>
       <Item>
         <PackageName Value="FCL"/>
