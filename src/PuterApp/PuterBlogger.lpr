@@ -3,26 +3,38 @@ program PuterBlogger;
 {$mode objfpc}
 
 uses
-  browserapp, JS, Classes, SysUtils, Web;
+  browserapp, JS, Classes, SysUtils, Web, widgets;
 
 type
-  TMyApplication = class(TBrowserApplication)
+
+  { TPuterBlogApp }
+
+  TPuterBlogApp = class(TBrowserApplication)
+  private
+    FName: TJSHTMLInputElement;
+    function ButtonClick(aEvent: TJSMouseEvent): boolean;
+  protected
     procedure doRun; override;
   end;
 
-procedure TMyApplication.doRun;
+{ TPuterBlogApp }
 
+function TPuterBlogApp.ButtonClick(aEvent: TJSMouseEvent): boolean;
 begin
-  // Your code here
-  Terminate;
+  document.write(FName.value);
+end;
+
+procedure TPuterBlogApp.doRun;
+begin
+  FName:=MakeInputField('name', 'Your Name:', 'Some Name');
+  MakeButton('test2', 'Another Button', @ButtonClick);
 end;
 
 var
-  Application : TMyApplication;
+  Application : TPuterBlogApp;
 
 begin
-  Application:=TMyApplication.Create(nil);
+  Application:=TPuterBlogApp.Create(nil);
   Application.Initialize;
   Application.Run;
-  Application.Free;
 end.

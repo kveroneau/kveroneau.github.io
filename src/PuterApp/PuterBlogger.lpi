@@ -130,6 +130,10 @@
           <Item0 Name="PasJSIsProjectHTMLFile" Value="1"/>
         </CustomData>
       </Unit>
+      <Unit>
+        <Filename Value="widgets.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
