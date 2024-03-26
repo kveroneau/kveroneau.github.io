@@ -59,7 +59,6 @@ constructor TBlogList.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   GridTab:=TabSys.AddTab('Database Grid', 'GridTab', @ShowGrid);
-  TabSys.renderHTML;
 end;
 
 end.

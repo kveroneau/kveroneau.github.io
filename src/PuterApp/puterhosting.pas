@@ -256,6 +256,7 @@ begin
   BlogEditorForm.Subdomain:=FInst;
   DBGrid.Subdomain:=FInst;
   BlogEditorForm.Show;
+  TabSys.renderHTML;
 end;
 
 procedure TPuterHosting.ExportDS(AContent: string);

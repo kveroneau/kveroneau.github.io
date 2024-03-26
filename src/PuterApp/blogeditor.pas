@@ -80,7 +80,6 @@ constructor TBlogEditorForm.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   EditTab:=TabSys.AddTab('Form Entry', 'EditTab', @ShowEditor);
-  TabSys.renderHTML;
 end;
 
 procedure TBlogEditorForm.FillRecord;
