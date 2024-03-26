@@ -42,9 +42,6 @@ end;
 procedure InitTabs;
 begin
   TabSys:=TBulmaTabs.Create(Nil, 'TabSys');
-  EditTab:=TabSys.AddTab('Form Entry', 'EditTab', Nil);
-  GridTab:=TabSys.AddTab('Database Grid', 'GridTab', Nil);
-  TabSys.renderHTML;
   TabBody:=TBulmaWidget.Create(Nil, 'TabBody');
 end;
 

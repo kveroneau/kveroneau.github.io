@@ -151,6 +151,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="BlogEditor"/>
       </Unit>
+      <Unit>
+        <Filename Value="bloglist.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BlogList"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

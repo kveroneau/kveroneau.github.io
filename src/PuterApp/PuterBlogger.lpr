@@ -4,7 +4,7 @@ program PuterBlogger;
 
 uses
   browserapp, JS, Classes, SysUtils, Web, widgets, puterjs, bulma, p2jsres,
-  PuterHosting, PuterDB, BlogEditor, Rtl.BrowserLoadHelper;
+  PuterHosting, PuterDB, BlogEditor, Rtl.BrowserLoadHelper, BlogList;
 
 type
 
@@ -34,6 +34,9 @@ begin
   PuterSites:=TPuterHosting.Create(Self);
   PuterSites.CheckSites;
   BlogEditorForm:=TBlogEditorForm.Create(Self);
+  if False then
+    BlogEditorForm.GotoRecord('');
+  DBGrid:=TBlogList.Create(Self);
 end;
 
 var

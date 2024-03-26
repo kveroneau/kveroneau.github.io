@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, puterjs, widgets, bulma, Web, p2jsres, Types, strutils,
-  PuterDB, jsontable, BlogEditor;
+  PuterDB, jsontable, BlogEditor, BlogList;
 
 type
 
@@ -254,6 +254,7 @@ procedure TPuterHosting.DatabaseLoaded(AContent: string);
 begin
   BlogDB.ParseTable(AContent);
   BlogEditorForm.Subdomain:=FInst;
+  DBGrid.Subdomain:=FInst;
   BlogEditorForm.Show;
 end;
 

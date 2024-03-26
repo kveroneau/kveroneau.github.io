@@ -21,11 +21,13 @@ type
     function AddEntry(aEvent: TJSMouseEvent): boolean;
     function NextRec(aEvent: TJSMouseEvent): boolean;
     function PrevRec(aEvent: TJSMouseEvent): boolean;
+    function ShowEditor(aEvent: TJSMouseEvent): boolean;
   public
     property Subdomain: string write FSubdomain;
     constructor Create(AOwner: TComponent); override;
     procedure FillRecord;
     procedure Show;
+    function GotoRecord(APath: string): boolean;
   end;
 
 var
@@ -69,9 +71,16 @@ begin
   FillRecord;
 end;
 
+function TBlogEditorForm.ShowEditor(aEvent: TJSMouseEvent): boolean;
+begin
+  Show;
+end;
+
 constructor TBlogEditorForm.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  EditTab:=TabSys.AddTab('Form Entry', 'EditTab', @ShowEditor);
+  TabSys.renderHTML;
 end;
 
 procedure TBlogEditorForm.FillRecord;
@@ -106,6 +115,15 @@ begin
     prior.Bind;
   end;
   FillRecord;
+end;
+
+function TBlogEditorForm.GotoRecord(APath: string): boolean;
+begin
+  TabSys.ActiveTab:=EditTab;
+  BlogDB.Filter:='Path='+QuotedStr(APath);
+  Show;
+  BlogDB.Filter:='';
+  Result:=False;
 end;
 
 end.
