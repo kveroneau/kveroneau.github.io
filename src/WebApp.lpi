@@ -96,8 +96,7 @@
 -Jirtl.js
 -Jc
 -Jm-
--JRjs
--dEMBEDSITE"/>
+-JRjs"/>
             <OtherDefines Count="2">
               <Define0 Value="DEBUG"/>
               <Define1 Value="EMBEDSITE"/>

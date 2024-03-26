@@ -5,11 +5,17 @@ unit widgets;
 interface
 
 uses
-  Web;
+  Web, bulma;
+
+var
+  TabSys: TBulmaTabs;
+  EditTab, GridTab: TBulmaTab;
+  TabBody: TBulmaWidget;
 
 function GetElement(ElementId: string): TJSHTMLElement;
 function MakeButton(ElementId, Title: string; onclick: THTMLClickEventHandler): TJSHTMLButtonElement;
 function MakeInputField(ElementId, Title, AValue: string): TJSHTMLInputElement;
+procedure InitTabs;
 
 implementation
 
@@ -21,17 +27,29 @@ end;
 function MakeButton(ElementId, Title: string; onclick: THTMLClickEventHandler
   ): TJSHTMLButtonElement;
 begin
-  document.write('<button id="'+ElementId+'">'+Title+'</button>');
+  TabBody.Write('<button id="'+ElementId+'">'+Title+'</button>');
   Result:=TJSHTMLButtonElement(GetElement(ElementId));
   Result.onclick:=onclick;
 end;
 
 function MakeInputField(ElementId, Title, AValue: string): TJSHTMLInputElement;
 begin
-  document.write('<strong>'+Title+':</strong> ');
-  document.write('<input id="'+ElementId+'" type="text" value="'+AValue+'"/>');
+  TabBody.Write('<strong>'+Title+':</strong> ');
+  TabBody.Write('<input id="'+ElementId+'" type="text" value="'+AValue+'"/>');
   Result:=TJSHTMLInputElement(GetElement(ElementId));
 end;
+
+procedure InitTabs;
+begin
+  TabSys:=TBulmaTabs.Create(Nil, 'TabSys');
+  EditTab:=TabSys.AddTab('Form Entry', 'EditTab', Nil);
+  GridTab:=TabSys.AddTab('Database Grid', 'GridTab', Nil);
+  TabSys.renderHTML;
+  TabBody:=TBulmaWidget.Create(Nil, 'TabBody');
+end;
+
+initialization
+  InitTabs;
 
 end.
 

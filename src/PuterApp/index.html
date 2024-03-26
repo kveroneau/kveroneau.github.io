@@ -4,14 +4,26 @@
   <meta http-equiv="Content-type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Puter Blogger</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"/>
   <script src="https://js.puter.com/v2/"></script>
   <script src="PuterBlogger.js"></script>
 </head>
-<body>
-  <script>
-  rtl.showUncaughtExceptions=true;
-  window.addEventListener("load", rtl.run);
-  </script>
+<body onload="rtl.showUncaughtExceptions=true; rtl.run();">
+  <section class="section">
+    <div class="container">
+      <div id="TabSys" class="container"></div>
+      <div id="TabBody" class="content">
+        <h1 class="title">
+          Kevin Veroneau's Online Portfolio
+        </h1>
+        <p class="subtitle">
+          All this content is going to be updated before I upload.
+          Here is some additional content to see how wrapping to the next
+          line will work...
+        </p>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
 

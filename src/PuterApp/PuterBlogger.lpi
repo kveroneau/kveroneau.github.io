@@ -134,6 +134,11 @@
         <Filename Value="widgets.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="puterhosting.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PuterHosting"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
