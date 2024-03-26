@@ -13,7 +13,8 @@ type
 
   TBlogEditorForm = class(TComponent)
   private
-    FTitle, FPath, FType: TBulmaInput;
+    FTitle, FPath: TBulmaInput;
+    FType: TJSHTMLSelectElement;
     FContent: TJSHTMLTextAreaElement;
     FSubdomain: string;
     function SaveEntry(aEvent: TJSMouseEvent): boolean;
@@ -40,7 +41,7 @@ begin
   BlogDB.Dates['Modified']:=Now;
   BlogDB.Strings['Title']:=FTitle.Value;
   BlogDB.Strings['Path']:=FPath.Value;
-  BlogDB.Ints['ContentType']:=StrToInt(FType.Value);
+  BlogDB.Ints['ContentType']:=StrToInt(FType.value);
   BlogDB.Strings['Content']:=FContent.value;
   BlogDB.DataSet.Post;
   Puter.WriteFile(FSubdomain+'/website.json', BlogDB.GetJSON);
@@ -92,12 +93,12 @@ begin
     setContent(prior.renderHTML+next.renderHTML+'<br/>');
     FTitle:=TBulmaInput.Create(Self, 'Title', 'ftitle');
     FPath:=TBulmaInput.Create(Self, 'Path', 'fpath');
-    FType:=TBulmaInput.Create(Self, 'Content-Type', 'ftype');
-    Write(FTitle.renderHTML+'<br/>'+FPath.renderHTML+'<br/>'+FType.renderHTML+'<br/>');
+    Write(FTitle.renderHTML+'<br/>'+FPath.renderHTML+'<br/>'+TypesDropDown+'<br/>');
     Write('<textarea id="fcontent" rows="30" cols="80"></textarea><br/>');
     btn1:=TBulmaButton.Create(Self, 'Save', 'SaveBtn', @SaveEntry);
     btn2:=TBulmaButton.Create(Self, 'Add', 'AddBtn', @AddEntry);
     Write(btn1.renderHTML+btn2.renderHTML);
+    FType:=TJSHTMLSelectElement(GetElement('ftype'));
     FContent:=TJSHTMLTextAreaElement(GetElement('fcontent'));
     btn1.Bind;
     btn2.Bind;

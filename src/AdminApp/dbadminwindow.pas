@@ -66,6 +66,7 @@ type
     procedure LoadDatabase;
     {$ENDIF}
     procedure SetFilter;
+    procedure ExportJSON(DS: TDataSet; AFile: string);
   public
 
   end;
@@ -92,24 +93,12 @@ begin
 end;
 
 procedure TDBAdminForm.ExportBtnClick(Sender: TObject);
-{$IFNDEF JSONDS}
-var
-  s: TStringStream;
-  json: TJSONObject;
-{$ENDIF}
 begin
   {$IFDEF JSONDS}
   FDataSet.SaveToFile('database.json', True);
   {$ELSE}
-  json:=ExportDBF(Dbf);
-  s:=TStringStream.Create;
-  try
-    s.WriteString(json.AsJSON);
-    s.SaveToFile('website.json');
-  finally
-    s.Free;
-    json.Free;
-  end;
+  ExportJSON(Dbf, 'website.json');
+  ExportJSON(TypesDB, 'types.json');
   {$ENDIF}
 end;
 
@@ -232,6 +221,22 @@ begin
   end
   else
     dbf.Filtered:=False;
+end;
+
+procedure TDBAdminForm.ExportJSON(DS: TDataSet; AFile: string);
+var
+  json: TJSONObject;
+  s: TStringStream;
+begin
+  json:=ExportDBF(DS);
+  s:=TStringStream.Create;
+  try
+    s.WriteString(json.AsJSON);
+    s.SaveToFile(AFile);
+  finally
+    s.Free;
+    json.Free;
+  end;
 end;
 
 {$IFDEF JSONDS}

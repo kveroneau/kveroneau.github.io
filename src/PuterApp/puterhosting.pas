@@ -43,6 +43,10 @@ type
     function DeleteSite(aEvent: TJSMouseEvent): boolean;
     function EditSite(aEvent: TJSMouseEvent): boolean;
     procedure DatabaseLoaded(AContent: string);
+    procedure ExportDS(AContent: string);
+    function ExportData(aEvent: TJSMouseEvent): boolean;
+    procedure ImportFile(AFile: TPuterFSItem);
+    function ImportData(aEvent: TJSMouseEvent): boolean;
   public
     property Subdomain: string read FInst;
     procedure CheckSites;
@@ -131,17 +135,29 @@ end;
 procedure TPuterHosting.ListSites(SiteList: TPuterHostList);
 var
   i: integer;
-  btn: TBulmaButton;
+  DelBtn: Array[0..31] of TBulmaButton;
+  EdtBtn: Array[0..31] of TBulmaButton;
+  ImpBtn: Array[0..31] of TBulmaButton;
+  ExpBtn: Array[0..31] of TBulmaButton;
 begin
   for i:=0 to Length(SiteList)-1 do
   begin
     TabBody.Write('<a href="https://'+SiteList[i].subdomain+'.puter.site/"  target="_new">'+SiteList[i].subdomain+'</a>');
-    btn:=TBulmaButton.Create(Self, 'Delete', 'del-'+SiteList[i].subdomain, @DeleteSite);
-    TabBody.Write(btn.renderHTML);
-    btn.Bind;
-    btn:=TBulmaButton.Create(Self, 'Edit', 'edit-'+SiteList[i].subdomain, @EditSite);
-    TabBody.Write(btn.renderHTML+'<br/>');
-    btn.Bind;
+    DelBtn[i]:=TBulmaButton.Create(Self, 'Delete', 'del-'+SiteList[i].subdomain, @DeleteSite);
+    TabBody.Write(DelBtn[i].renderHTML);
+    EdtBtn[i]:=TBulmaButton.Create(Self, 'Edit', 'edit-'+SiteList[i].subdomain, @EditSite);
+    TabBody.Write(EdtBtn[i].renderHTML);
+    ExpBtn[i]:=TBulmaButton.Create(Self, 'Export', 'exp-'+SiteList[i].subdomain, @ExportData);
+    TabBody.Write(ExpBtn[i].renderHTML);
+    ImpBtn[i]:=TBulmaButton.Create(Self, 'Import', 'imp-'+SiteList[i].subdomain, @ImportData);
+    TabBody.Write(ImpBtn[i].renderHTML+'<br/>');
+  end;
+  for i:=0 to Length(SiteList)-1 do
+  begin
+    DelBtn[i].Bind;
+    EdtBtn[i].Bind;
+    ExpBtn[i].Bind;
+    ImpBtn[i].Bind;
   end;
 end;
 
@@ -234,6 +250,37 @@ begin
   BlogDB.ParseTable(AContent);
   BlogEditorForm.Subdomain:=FInst;
   BlogEditorForm.Show;
+end;
+
+procedure TPuterHosting.ExportDS(AContent: string);
+begin
+  puter.SaveFileDialog(AContent);
+end;
+
+function TPuterHosting.ExportData(aEvent: TJSMouseEvent): boolean;
+var
+  id, site: string;
+begin
+  site:=aEvent.targetElement.id;
+  id:=Copy2SymbDel(site, '-');
+  Puter.OnReadSuccess:=@ExportDS;
+  puter.ReadFile(site+'/website.json');
+end;
+
+procedure TPuterHosting.ImportFile(AFile: TPuterFSItem);
+begin
+  Puter.WriteFile(FInst+'/website.json', AFile.content);
+end;
+
+function TPuterHosting.ImportData(aEvent: TJSMouseEvent): boolean;
+var
+  id, site: string;
+begin
+  site:=aEvent.targetElement.id;
+  id:=Copy2SymbDel(site, '-');
+  FInst:=site;
+  Puter.OnOpenFileSuccess:=@ImportFile;
+  Puter.OpenFileDialog;
 end;
 
 procedure TPuterHosting.CheckSites;

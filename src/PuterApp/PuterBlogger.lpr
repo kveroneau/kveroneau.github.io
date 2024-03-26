@@ -30,13 +30,10 @@ procedure TPuterBlogApp.doRun;
 begin
   Puter.WindowTitle:='Puter Blogger at your service';
   TabBody.setContent('Checking website information, please wait...');
+  InitTypesDB;
   PuterSites:=TPuterHosting.Create(Self);
   PuterSites.CheckSites;
   BlogEditorForm:=TBlogEditorForm.Create(Self);
-  {FTitle:=TBulmaInput.Create(Self, 'A Title:', 'title');
-  TabBody.Write(FTitle.renderHTML);
-  FName:=MakeInputField('name', 'Your Name', 'Some Name');
-  MakeButton('test2', 'Another Button', @ButtonClick);}
 end;
 
 var
