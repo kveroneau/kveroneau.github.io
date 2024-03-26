@@ -47,6 +47,7 @@ type
     function ExportData(aEvent: TJSMouseEvent): boolean;
     procedure ImportFile(AFile: TPuterFSItem);
     function ImportData(aEvent: TJSMouseEvent): boolean;
+    function AddSiteClick(aEvent: TJSMouseEvent): boolean;
   public
     property Subdomain: string read FInst;
     procedure CheckSites;
@@ -135,11 +136,14 @@ end;
 procedure TPuterHosting.ListSites(SiteList: TPuterHostList);
 var
   i: integer;
+  btn: TBulmaButton;
   DelBtn: Array[0..31] of TBulmaButton;
   EdtBtn: Array[0..31] of TBulmaButton;
   ImpBtn: Array[0..31] of TBulmaButton;
   ExpBtn: Array[0..31] of TBulmaButton;
 begin
+  btn:=TBulmaButton.Create(Self, 'Add Blog', 'addBtn', @AddSiteClick);
+  TabBody.setContent(btn.renderHTML+'<br/>');
   for i:=0 to Length(SiteList)-1 do
   begin
     TabBody.Write('<a href="https://'+SiteList[i].subdomain+'.puter.site/"  target="_new">'+SiteList[i].subdomain+'</a>');
@@ -152,6 +156,7 @@ begin
     ImpBtn[i]:=TBulmaButton.Create(Self, 'Import', 'imp-'+SiteList[i].subdomain, @ImportData);
     TabBody.Write(ImpBtn[i].renderHTML+'<br/>');
   end;
+  btn.Bind;
   for i:=0 to Length(SiteList)-1 do
   begin
     DelBtn[i].Bind;
@@ -281,6 +286,12 @@ begin
   FInst:=site;
   Puter.OnOpenFileSuccess:=@ImportFile;
   Puter.OpenFileDialog;
+end;
+
+function TPuterHosting.AddSiteClick(aEvent: TJSMouseEvent): boolean;
+begin
+  TabBody.setContent('');
+  AddNewSite;
 end;
 
 procedure TPuterHosting.CheckSites;
