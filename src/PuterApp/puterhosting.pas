@@ -27,9 +27,11 @@ type
   private
     FSubdomain: TBulmaInput;
     FInst: string;
+    procedure ShowSuccess(AMessage: string);
     function ListSuccess(AValue: JSValue): JSValue;
     function HostSuccess(AValue: JSValue): JSValue;
     function DelSuccess(AValue: JSValue): JSValue;
+    procedure InstallSite;
     procedure AddNewSite;
     procedure ListSites(SiteList: TPuterHostList);
     {$IFDEF INSTEMBED}
@@ -48,6 +50,8 @@ type
     procedure ImportFile(AFile: TPuterFSItem);
     function ImportData(aEvent: TJSMouseEvent): boolean;
     function AddSiteClick(aEvent: TJSMouseEvent): boolean;
+    procedure UpdateSite(ASite: string);
+    function SiteAction(aEvent: TJSMouseEvent): boolean;
   public
     property Subdomain: string read FInst;
     procedure CheckSites;
@@ -84,6 +88,16 @@ end;
 
 { TPuterHosting }
 
+procedure TPuterHosting.ShowSuccess(AMessage: string);
+var
+  btn: TBulmaButton;
+begin
+  TabBody.setContent(AMessage+': <a href="https://'+FInst+'.puter.site/" target="_new">Visit</a>!<br/>');
+  btn:=TBulmaButton.Create(Self, 'Edit', 'edit-'+FInst, @EditSite);
+  TabBody.Write(btn.renderHTML);
+  btn.Bind;
+end;
+
 function TPuterHosting.ListSuccess(AValue: JSValue): JSValue;
 var
   sites: TPuterHostList;
@@ -99,21 +113,24 @@ end;
 function TPuterHosting.HostSuccess(AValue: JSValue): JSValue;
 var
   info: TResourceInfo;
-  btn: TBulmaButton;
 begin
   if not GetResourceInfo(rsHTML, 'initdb', info) then
     raise Exception.Create('Resource missing: initdb');
   Puter.WriteFile(FInst+'/website.json', window.atob(info.data));
-  TabBody.setContent('Hosting success: <a href="https://'+FInst+'.puter.site/" target="_new">Visit</a>!<br/>');
-  btn:=TBulmaButton.Create(Self, 'Edit', 'edit-'+FInst, @EditSite);
-  TabBody.Write(btn.renderHTML);
-  btn.Bind;
+  ShowSuccess('Host success');
 end;
 
 function TPuterHosting.DelSuccess(AValue: JSValue): JSValue;
 begin
   TabBody.setContent('Site Deleted.<br/>');
   CheckSites;
+end;
+
+procedure TPuterHosting.InstallSite;
+begin
+  InstallFile('index', 'index.html');
+  InstallFile('webapp', 'WebApp.js');
+  InstallFile('api', 'api.js');
 end;
 
 procedure TPuterHosting.AddNewSite;
@@ -141,6 +158,7 @@ var
   EdtBtn: Array[0..31] of TBulmaButton;
   ImpBtn: Array[0..31] of TBulmaButton;
   ExpBtn: Array[0..31] of TBulmaButton;
+  UpdBtn: Array[0..31] of TBulmaButton;
 begin
   btn:=TBulmaButton.Create(Self, 'Add Blog', 'addBtn', @AddSiteClick);
   TabBody.setContent(btn.renderHTML+'<br/>');
@@ -154,7 +172,9 @@ begin
     ExpBtn[i]:=TBulmaButton.Create(Self, 'Export', 'exp-'+SiteList[i].subdomain, @ExportData);
     TabBody.Write(ExpBtn[i].renderHTML);
     ImpBtn[i]:=TBulmaButton.Create(Self, 'Import', 'imp-'+SiteList[i].subdomain, @ImportData);
-    TabBody.Write(ImpBtn[i].renderHTML+'<br/>');
+    TabBody.Write(ImpBtn[i].renderHTML);
+    UpdBtn[i]:=TBulmaButton.Create(Self, 'Update', 'upd-'+SiteList[i].subdomain, @SiteAction);
+    TabBody.Write(UpdBtn[i].renderHTML+'<br/>');
   end;
   btn.Bind;
   for i:=0 to Length(SiteList)-1 do
@@ -163,6 +183,7 @@ begin
     EdtBtn[i].Bind;
     ExpBtn[i].Bind;
     ImpBtn[i].Bind;
+    UpdBtn[i].Bind;
   end;
 end;
 
@@ -197,9 +218,7 @@ end;
 procedure TPuterHosting.InstallBlog(ADir: TPuterFSItem);
 begin
   TabBody.Write('Website directory created.<br/>');
-  InstallFile('index', 'index.html');
-  InstallFile('webapp', 'WebApp.js');
-  InstallFile('api', 'api.js');
+  InstallSite;
   Puter.OnDirSuccess:=@InstallPyapi;
   Puter.MakeDirectory(FInst+'/pyapi');
 end;
@@ -294,6 +313,30 @@ function TPuterHosting.AddSiteClick(aEvent: TJSMouseEvent): boolean;
 begin
   TabBody.setContent('');
   AddNewSite;
+end;
+
+procedure TPuterHosting.UpdateSite(ASite: string);
+begin
+  TabBody.setContent('Updating website files, please wait...');
+  FInst:=ASite;
+  InstallSite;
+  InstallFile('website', 'pyapi/website.py');
+  ShowSuccess('Update Success');
+end;
+
+function TPuterHosting.SiteAction(aEvent: TJSMouseEvent): boolean;
+var
+  act, site: string;
+begin
+  site:=aEvent.targetElement.id;
+  act:=Copy2SymbDel(site, '-');
+  case act of
+    'del': DeleteSite(aEvent);
+    'edit': EditSite(aEvent);
+    'exp': ExportData(aEvent);
+    'imp': ImportData(aEvent);
+    'upd': UpdateSite(site);
+  end;
 end;
 
 procedure TPuterHosting.CheckSites;
