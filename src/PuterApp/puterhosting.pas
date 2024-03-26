@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, puterjs, widgets, bulma, Web, p2jsres, Types, strutils,
-  PuterDB, jsontable;
+  PuterDB, jsontable, BlogEditor;
 
 type
 
@@ -33,6 +33,7 @@ type
   public
     property Subdomain: string read FInst;
     procedure CheckSites;
+    procedure SaveDatabase;
   end;
 
 var
@@ -181,16 +182,18 @@ end;
 procedure TPuterHosting.DatabaseLoaded(AContent: string);
 begin
   BlogDB.ParseTable(AContent);
-  TabBody.setContent(BlogDB.Strings['Title']);
-  BlogDB.DataSet.Edit;
-  BlogDB.Strings['Content']:='# Some new shiny content!';
-  BlogDB.DataSet.Post;
-  Puter.WriteFile(FInst+'/website.json', BlogDB.GetJSON);
+  BlogEditorForm.Subdomain:=FInst;
+  BlogEditorForm.Show;
 end;
 
 procedure TPuterHosting.CheckSites;
 begin
   PuterAPI.hosting.list._then(@ListSuccess);
+end;
+
+procedure TPuterHosting.SaveDatabase;
+begin
+  Puter.WriteFile(FInst+'/website.json', BlogDB.GetJSON);
 end;
 
 end.

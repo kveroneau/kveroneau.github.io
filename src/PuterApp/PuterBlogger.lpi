@@ -148,6 +148,11 @@
         <Filename Value="initdb.json"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="blogeditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BlogEditor"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

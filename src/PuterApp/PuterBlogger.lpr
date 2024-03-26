@@ -4,7 +4,7 @@ program PuterBlogger;
 
 uses
   browserapp, JS, Classes, SysUtils, Web, widgets, puterjs, bulma, p2jsres,
-  PuterHosting, PuterDB;
+  PuterHosting, PuterDB, BlogEditor;
 
 type
 
@@ -37,6 +37,7 @@ begin
   TabBody.setContent('Checking website information, please wait...');
   PuterSites:=TPuterHosting.Create(Self);
   PuterSites.CheckSites;
+  BlogEditorForm:=TBlogEditorForm.Create(Self);
   {FTitle:=TBulmaInput.Create(Self, 'A Title:', 'title');
   TabBody.Write(FTitle.renderHTML);
   FName:=MakeInputField('name', 'Your Name', 'Some Name');
