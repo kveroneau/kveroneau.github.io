@@ -4,7 +4,7 @@ program PuterBlogger;
 
 uses
   browserapp, JS, Classes, SysUtils, Web, widgets, puterjs, bulma, p2jsres,
-  PuterHosting, PuterDB, BlogEditor;
+  PuterHosting, PuterDB, BlogEditor, Rtl.BrowserLoadHelper;
 
 type
 
@@ -18,11 +18,6 @@ type
   protected
     procedure doRun; override;
   end;
-
-{$R ../WebApp.js}
-{$R ../index.html}
-{$R ../api.js}
-{$R ../../pyapi/website.py}
 
 { TPuterBlogApp }
 

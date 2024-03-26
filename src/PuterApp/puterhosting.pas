@@ -10,6 +10,17 @@ uses
 
 type
 
+  { TResourceLoader }
+
+  TResourceLoader = class(TComponent)
+  private
+    FData: TStringList;
+    FTarget: string;
+    procedure DataLoaded(Sender: TObject);
+  public
+    constructor Create(AOwner: TComponent; AName, ATarget: string);
+  end;
+
   { TPuterHosting }
 
   TPuterHosting = Class(TComponent)
@@ -21,7 +32,9 @@ type
     function DelSuccess(AValue: JSValue): JSValue;
     procedure AddNewSite;
     procedure ListSites(SiteList: TPuterHostList);
+    {$IFDEF INSTEMBED}
     function GetResource(AName: string): string;
+    {$ENDIF}
     function CreateSite(aEvent: TJSMouseEvent): boolean;
     procedure PuterError(AError: TPuterErrorMsg);
     procedure InstallBlog(ADir: TPuterFSItem);
@@ -41,6 +54,29 @@ var
 
 implementation
 
+{ TResourceLoader }
+
+procedure TResourceLoader.DataLoaded(Sender: TObject);
+begin
+  Puter.WriteFile(FTarget, FData.Text);
+  FData.Free;
+end;
+
+constructor TResourceLoader.Create(AOwner: TComponent; AName, ATarget: string);
+begin
+  inherited Create(AOwner);
+  FTarget:=ATarget;
+  FData:=TStringList.Create;
+  FData.LoadFromURL('Bundle/'+AName+'.res', True, @DataLoaded);
+end;
+
+{$IFDEF INSTEMBED}
+{$R ../WebApp.js}
+{$R ../index.html}
+{$R ../api.js}
+{$R ../../pyapi/website.py}
+{$ENDIF}
+
 { TPuterHosting }
 
 function TPuterHosting.ListSuccess(AValue: JSValue): JSValue;
@@ -58,11 +94,15 @@ end;
 function TPuterHosting.HostSuccess(AValue: JSValue): JSValue;
 var
   info: TResourceInfo;
+  btn: TBulmaButton;
 begin
   if not GetResourceInfo(rsHTML, 'initdb', info) then
     raise Exception.Create('Resource missing: initdb');
   Puter.WriteFile(FInst+'/website.json', window.atob(info.data));
-  TabBody.setContent('Hosting success: <a href="https://'+FInst+'.puter.site/">Visit</a>!');
+  TabBody.setContent('Hosting success: <a href="https://'+FInst+'.puter.site/" target="_new">Visit</a>!<br/>');
+  btn:=TBulmaButton.Create(Self, 'Edit', 'edit-'+FInst, @EditSite);
+  TabBody.Write(btn.renderHTML);
+  btn.Bind;
 end;
 
 function TPuterHosting.DelSuccess(AValue: JSValue): JSValue;
@@ -95,7 +135,7 @@ var
 begin
   for i:=0 to Length(SiteList)-1 do
   begin
-    TabBody.Write('<a href="https://'+SiteList[i].subdomain+'.puter.site/">'+SiteList[i].subdomain+'</a>');
+    TabBody.Write('<a href="https://'+SiteList[i].subdomain+'.puter.site/"  target="_new">'+SiteList[i].subdomain+'</a>');
     btn:=TBulmaButton.Create(Self, 'Delete', 'del-'+SiteList[i].subdomain, @DeleteSite);
     TabBody.Write(btn.renderHTML);
     btn.Bind;
@@ -105,6 +145,7 @@ begin
   end;
 end;
 
+{$IFDEF INSTEMBED}
 function TPuterHosting.GetResource(AName: string): string;
 var
   info: TResourceInfo;
@@ -113,6 +154,7 @@ begin
     raise Exception.Create('Missing Resource: '+AName);
   Result:=window.atob(info.data);
 end;
+{$ENDIF}
 
 function TPuterHosting.CreateSite(aEvent: TJSMouseEvent): boolean;
 begin
@@ -143,10 +185,18 @@ end;
 
 procedure TPuterHosting.InstallFile(ARscr, AFile: string);
 var
+{$IFDEF INSTEMBED}
   data: string;
+{$ELSE}
+  Res: TResourceLoader;
+{$ENDIF}
 begin
+  {$IFDEF INSTEMBED}
   data:=GetResource(ARscr);
   Puter.WriteFile(FInst+'/'+AFile, data);
+  {$ELSE}
+  Res:=TResourceLoader.Create(Self, ARscr, FInst+'/'+AFile);
+  {$ENDIF}
   TabBody.Write('Installed '+AFile+'.<br/>');
 end;
 

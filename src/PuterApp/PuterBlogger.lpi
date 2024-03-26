@@ -80,10 +80,9 @@
             </SyntaxOptions>
           </Parsing>
           <CodeGeneration>
-            <SmartLinkUnit Value="True"/>
             <TargetOS Value="browser"/>
             <Optimizations>
-              <OptimizationLevel Value="3"/>
+              <OptimizationLevel Value="2"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -91,7 +90,6 @@
               <GenerateDebugInfo Value="False"/>
               <UseLineInfoUnit Value="False"/>
             </Debugging>
-            <LinkSmart Value="True"/>
           </Linking>
           <Other>
             <CustomOptions Value="-Jeutf-8 -Jirtl.js -Jc -Jminclude"/>
