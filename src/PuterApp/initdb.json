@@ -1,0 +1,19 @@
+{"metaData": {
+    "fields": [
+        {"name":"Id", "type":"int"},
+        {"name":"Path", "type":"string"},
+        {"name":"Title", "type":"string"},
+        {"name":"Created", "type":"date"},
+        {"name":"Modified", "type":"date"},
+        {"name":"ContentType", "type":"int"},
+        {"name":"Content", "type":"string"}
+    ],
+    "root": "Data"
+    }, "Data": [
+       {"Id": 1, "Path": "/index", "Title": "Puter Blogger!",
+        "Created": "2024-03-25T18:55:04.454Z",
+        "Modified": "2024-03-25T18:55:04.454Z",
+        "ContentType": 1, "Content": "# Welcome to Puter Blogger!"}
+    ]
+}
+

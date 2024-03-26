@@ -5,7 +5,8 @@ unit PuterHosting;
 interface
 
 uses
-  Classes, SysUtils, puterjs, widgets, bulma, Web, p2jsres, Types;
+  Classes, SysUtils, puterjs, widgets, bulma, Web, p2jsres, Types, strutils,
+  PuterDB, jsontable;
 
 type
 
@@ -17,6 +18,7 @@ type
     FInst: string;
     function ListSuccess(AValue: JSValue): JSValue;
     function HostSuccess(AValue: JSValue): JSValue;
+    function DelSuccess(AValue: JSValue): JSValue;
     procedure AddNewSite;
     procedure ListSites(SiteList: TPuterHostList);
     function GetResource(AName: string): string;
@@ -25,7 +27,11 @@ type
     procedure InstallBlog(ADir: TPuterFSItem);
     procedure InstallFile(ARscr, AFile: string);
     procedure InstallPyapi(ADir: TPuterFSItem);
+    function DeleteSite(aEvent: TJSMouseEvent): boolean;
+    function EditSite(aEvent: TJSMouseEvent): boolean;
+    procedure DatabaseLoaded(AContent: string);
   public
+    property Subdomain: string read FInst;
     procedure CheckSites;
   end;
 
@@ -42,15 +48,26 @@ var
 begin
   sites:=TPuterHostList(AValue);
   TabBody.setContent('You have '+IntToStr(Length(sites))+' websites.<br/>');
-  if Length(sites) = 1 then
+  if Length(sites) = 0 then
     AddNewSite
   else
     ListSites(sites);
 end;
 
 function TPuterHosting.HostSuccess(AValue: JSValue): JSValue;
+var
+  info: TResourceInfo;
 begin
+  if not GetResourceInfo(rsHTML, 'initdb', info) then
+    raise Exception.Create('Resource missing: initdb');
+  Puter.WriteFile(FInst+'/website.json', window.atob(info.data));
   TabBody.setContent('Hosting success: <a href="https://'+FInst+'.puter.site/">Visit</a>!');
+end;
+
+function TPuterHosting.DelSuccess(AValue: JSValue): JSValue;
+begin
+  TabBody.setContent('Site Deleted.<br/>');
+  CheckSites;
 end;
 
 procedure TPuterHosting.AddNewSite;
@@ -73,10 +90,17 @@ end;
 procedure TPuterHosting.ListSites(SiteList: TPuterHostList);
 var
   i: integer;
+  btn: TBulmaButton;
 begin
   for i:=0 to Length(SiteList)-1 do
   begin
-    TabBody.Write('<a href="https://'+SiteList[i].subdomain+'.puter.site/">'+SiteList[i].subdomain+'</a><br/>');
+    TabBody.Write('<a href="https://'+SiteList[i].subdomain+'.puter.site/">'+SiteList[i].subdomain+'</a>');
+    btn:=TBulmaButton.Create(Self, 'Delete', 'del-'+SiteList[i].subdomain, @DeleteSite);
+    TabBody.Write(btn.renderHTML);
+    btn.Bind;
+    btn:=TBulmaButton.Create(Self, 'Edit', 'edit-'+SiteList[i].subdomain, @EditSite);
+    TabBody.Write(btn.renderHTML+'<br/>');
+    btn.Bind;
   end;
 end;
 
@@ -129,6 +153,39 @@ procedure TPuterHosting.InstallPyapi(ADir: TPuterFSItem);
 begin
   InstallFile('website', 'pyapi/website.py');
   PuterAPI.hosting.create(FInst, FInst)._then(@HostSuccess);
+end;
+
+function TPuterHosting.DeleteSite(aEvent: TJSMouseEvent): boolean;
+var
+  id,site: string;
+begin
+  site:=aEvent.targetElement.id;
+  id:=Copy2SymbDel(site, '-');
+  TabBody.setContent('Site: '+site);
+  PuterAPI.hosting.delete(site)._then(@DelSuccess);
+end;
+
+function TPuterHosting.EditSite(aEvent: TJSMouseEvent): boolean;
+var
+  id, site: string;
+begin
+  site:=aEvent.targetElement.id;
+  id:=Copy2SymbDel(site, '-');
+  FInst:=site;
+  TabBody.setContent('Loading Database...');
+  BlogDB:=TJSONTable.Create(Self);
+  Puter.OnReadSuccess:=@DatabaseLoaded;
+  Puter.ReadFile(site+'/website.json');
+end;
+
+procedure TPuterHosting.DatabaseLoaded(AContent: string);
+begin
+  BlogDB.ParseTable(AContent);
+  TabBody.setContent(BlogDB.Strings['Title']);
+  BlogDB.DataSet.Edit;
+  BlogDB.Strings['Content']:='# Some new shiny content!';
+  BlogDB.DataSet.Post;
+  Puter.WriteFile(FInst+'/website.json', BlogDB.GetJSON);
 end;
 
 procedure TPuterHosting.CheckSites;

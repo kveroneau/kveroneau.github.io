@@ -4,7 +4,7 @@ program PuterBlogger;
 
 uses
   browserapp, JS, Classes, SysUtils, Web, widgets, puterjs, bulma, p2jsres,
-  PuterHosting;
+  PuterHosting, PuterDB;
 
 type
 

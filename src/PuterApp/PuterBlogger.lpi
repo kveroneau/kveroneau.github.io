@@ -139,6 +139,15 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="PuterHosting"/>
       </Unit>
+      <Unit>
+        <Filename Value="puterdb.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PuterDB"/>
+      </Unit>
+      <Unit>
+        <Filename Value="initdb.json"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
