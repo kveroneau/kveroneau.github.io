@@ -9,7 +9,7 @@ uses
 
 var
   TabSys: TBulmaTabs;
-  EditTab, GridTab: TBulmaTab;
+  EditTab, GridTab, SettingsTab: TBulmaTab;
   TabBody: TBulmaWidget;
 
 function GetElement(ElementId: string): TJSHTMLElement;

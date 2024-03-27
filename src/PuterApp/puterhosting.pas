@@ -6,9 +6,14 @@ interface
 
 uses
   Classes, SysUtils, puterjs, widgets, bulma, Web, p2jsres, Types, strutils,
-  PuterDB, jsontable, BlogEditor, BlogList;
+  PuterDB, jsontable, BlogEditor, BlogList, JS;
 
 type
+
+  TSiteSettings = class(TJSObject)
+  public
+    title: string;
+  end;
 
   { TResourceLoader }
 
@@ -25,8 +30,8 @@ type
 
   TPuterHosting = Class(TComponent)
   private
-    FSubdomain: TBulmaInput;
-    FInst: string;
+    FSubdomain, FSiteTitle: TBulmaInput;
+    FInst, FSiteTitleS: string;
     procedure ShowSuccess(AMessage: string);
     function ListSuccess(AValue: JSValue): JSValue;
     function HostSuccess(AValue: JSValue): JSValue;
@@ -52,6 +57,9 @@ type
     function AddSiteClick(aEvent: TJSMouseEvent): boolean;
     procedure UpdateSite(ASite: string);
     function SiteAction(aEvent: TJSMouseEvent): boolean;
+    function SiteSettings(aEvent: TJSMouseEvent): boolean;
+    procedure SettingsLoaded(AContent: string);
+    function SaveSettings(aEvent: TJSMouseEvent): boolean;
   public
     property Subdomain: string read FInst;
     procedure CheckSites;
@@ -117,6 +125,7 @@ begin
   if not GetResourceInfo(rsHTML, 'initdb', info) then
     raise Exception.Create('Resource missing: initdb');
   Puter.WriteFile(FInst+'/website.json', window.atob(info.data));
+  Puter.WriteFile(FInst+'/settings.json', '{"title":"Puter Blog"}');
   ShowSuccess('Host success');
 end;
 
@@ -275,7 +284,10 @@ begin
   BlogEditorForm.Subdomain:=FInst;
   DBGrid.Subdomain:=FInst;
   BlogEditorForm.Show;
+  SettingsTab:=TabSys.AddTab('Settings', 'SettingsTab', @SiteSettings);
   TabSys.renderHTML;
+  Puter.OnReadSuccess:=@SettingsLoaded;
+  Puter.ReadFile(FInst+'/settings.json');
 end;
 
 procedure TPuterHosting.ExportDS(AContent: string);
@@ -337,6 +349,35 @@ begin
     'imp': ImportData(aEvent);
     'upd': UpdateSite(site);
   end;
+end;
+
+function TPuterHosting.SiteSettings(aEvent: TJSMouseEvent): boolean;
+var
+  btn: TBulmaButton;
+begin
+  FSiteTitle:=TBulmaInput.Create(Self, 'Site Title', 'fsitetitle');
+  btn:=TBulmaButton.Create(Self, 'Save Settings', 'SaveBtn', @SaveSettings);
+  TabBody.setContent(FSiteTitle.renderHTML+btn.renderHTML);
+  btn.Bind;
+  FSiteTitle.Value:=FSiteTitleS;
+end;
+
+procedure TPuterHosting.SettingsLoaded(AContent: string);
+var
+  settings: TJSObject;
+begin
+  settings:=TJSJSON.parseObject(AContent);
+  FSiteTitleS:=String(settings.Properties['title']);
+end;
+
+function TPuterHosting.SaveSettings(aEvent: TJSMouseEvent): boolean;
+var
+  settings: TSiteSettings;
+begin
+  FSiteTitleS:=FSiteTitle.Value;
+  settings:=TSiteSettings(TJSObject.new);
+  settings.title:=FSiteTitleS;
+  Puter.WriteFile(FInst+'/settings.json', TJSJSON.stringify(settings));
 end;
 
 procedure TPuterHosting.CheckSites;
