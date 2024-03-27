@@ -11,20 +11,11 @@ type
   { TPuterBlogApp }
 
   TPuterBlogApp = class(TBrowserApplication)
-  private
-    FName: TJSHTMLInputElement;
-    FTitle: TBulmaInput;
-    function ButtonClick(aEvent: TJSMouseEvent): boolean;
   protected
     procedure doRun; override;
   end;
 
 { TPuterBlogApp }
-
-function TPuterBlogApp.ButtonClick(aEvent: TJSMouseEvent): boolean;
-begin
-  document.write(FName.value);
-end;
 
 procedure TPuterBlogApp.doRun;
 begin
