@@ -5,7 +5,7 @@ program WebApp;
 
 uses
   browserconsole, browserapp, JS, Classes, SysUtils, Web, models, DateUtils,
-  webrouter;
+  webrouter, ajaxlib, jsonlib;
 
 type
 
@@ -14,11 +14,15 @@ type
   TMyHomePage = class(TBrowserApplication)
   private
     FDatabase: TWebsiteDB;
+    FSettings: TJSONRequest;
+    FSiteTitle: string;
     Procedure HandleRoute(URL: String; aRoute: TRoute; Params: TStrings);
     function GetDateInfo: string;
     function CodeHighlight(lang, content: string): string;
     function RenderContent(ct: Integer): string;
     procedure HandleRequest;
+    procedure ConfigureSite(json: TJSONData);
+    procedure SettingFailed(Sender: TObject);
     {$IFNDEF EMBEDSITE}
     procedure TableLoadError;
     {$ENDIF}
@@ -30,7 +34,6 @@ type
   end;
 
 const
-  WEBSITE_TITLE = 'kveroneau.github.io';
   DATE_FORMAT = 'dddd mmmm d, yyyy "at" hh:nn';
 
 function markdown(const s: string): string; external name 'window.marked.parse';
@@ -47,15 +50,15 @@ begin
   FDatabase.Filter:='Path='+QuotedStr(URL);
   if FDatabase.DataSet.EOF then
   begin
-    GetHTMLElement('title').innerHTML:=WEBSITE_TITLE;
+    GetHTMLElement('title').innerHTML:=FSiteTitle;
     document.title:='Resource not found';
     GetHTMLElement('modified').innerHTML:='An error has occured.';
     GetHTMLElement('content').innerHTML:='<h1>Resource not found.</h1>';
     Exit;
   end;
   GetHTMLElement('title').innerHTML:=FDatabase.Strings['Title'];
-  if FDatabase.Strings['Title'] <> WEBSITE_TITLE then
-    document.title:=FDatabase.Strings['Title']+' :: '+WEBSITE_TITLE;
+  if FDatabase.Strings['Title'] <> FSiteTitle then
+    document.title:=FDatabase.Strings['Title']+' :: '+FSiteTitle;
   GetHTMLElement('modified').innerHTML:=GetDateInfo;
   ct:=FDatabase.Ints['ContentType'];
   GetHTMLElement('content').innerHTML:=RenderContent(ct);
@@ -110,6 +113,24 @@ begin
   AfterInit(False); // Registers method with compiler for export in JavaScript.
 end;
 
+procedure TMyHomePage.ConfigureSite(json: TJSONData);
+begin
+  FSiteTitle:=json.Strings['title'];
+  SettingFailed(Nil);
+end;
+
+procedure TMyHomePage.SettingFailed(Sender: TObject);
+begin
+  FDatabase:=TWebsiteDB.Create(Self);
+  {$IFNDEF EMBEDSITE}
+  FDatabase.OnSuccess:=@HandleRequest;
+  FDatabase.OnFailure:=@TableLoadError;
+  FDatabase.Active:=True;
+  {$ELSE}
+  HandleRequest;
+  {$ENDIF}
+end;
+
 {$IFNDEF EMBEDSITE}
 procedure TMyHomePage.TableLoadError;
 begin
@@ -124,14 +145,11 @@ begin
   { This web app so far is just the initial set-up of what's to come.
     Namely making it easy to use JSONDatasets which can be generated from
     an application. }
-  FDatabase:=TWebsiteDB.Create(Self);
-  {$IFNDEF EMBEDSITE}
-  FDatabase.OnSuccess:=@HandleRequest;
-  FDatabase.OnFailure:=@TableLoadError;
-  FDatabase.Active:=True;
-  {$ELSE}
-  HandleRequest;
-  {$ENDIF}
+  FSiteTitle:='Puter Blogger';
+  FSettings:=TJSONRequest.Create(Self, 'get', 'settings.json');
+  FSettings.OnJSON:=@ConfigureSite;
+  FSettings.OnJSONError:=@SettingFailed;
+  FSettings.DoRequest;
 end;
 
 function TMyHomePage.GetContent(APath: string): string;

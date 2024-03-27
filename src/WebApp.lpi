@@ -110,7 +110,7 @@
         <CompilerOptions>
           <Version Value="11"/>
           <Target>
-            <Filename Value="WebAppFramework"/>
+            <Filename Value="WebApp"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -137,8 +137,9 @@
           </Linking>
           <Other>
             <CustomOptions Value="-Jeutf-8 -Jirtl.js -Jc -Jm-"/>
-            <OtherDefines Count="1">
+            <OtherDefines Count="2">
               <Define0 Value="DEBUG"/>
+              <Define1 Value="EMBEDSITE"/>
             </OtherDefines>
             <CompilerPath Value="$(pas2js)"/>
           </Other>
