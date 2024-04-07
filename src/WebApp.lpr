@@ -163,8 +163,8 @@ end;
 
 procedure TMyHomePage.AfterInit(RealRun: Boolean);
 begin
-  if {$IFDEF EMBEDSITE}not{$ENDIF}RealRun then
-    Exit;
+  {if {$IFDEF EMBEDSITE}not{$ENDIF}RealRun then
+    Exit;}
   if Router.RouteFromURL = '' then
     Router.Push('/index');
 end;

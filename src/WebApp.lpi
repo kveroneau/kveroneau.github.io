@@ -54,9 +54,11 @@
 -Jc
 -Jminclude
 -JRjs
--dDEBUG"/>
-            <OtherDefines Count="1">
+-dDEBUG
+-dEMBEDSITE"/>
+            <OtherDefines Count="2">
               <Define0 Value="DEBUG"/>
+              <Define1 Value="EMBEDSITE"/>
             </OtherDefines>
             <CompilerPath Value="$(pas2js)"/>
           </Other>

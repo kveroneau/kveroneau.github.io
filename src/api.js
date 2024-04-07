@@ -1,7 +1,7 @@
 initAPI = function(){
   window.GetContent = rtl.createSafeCallback(pas.program.Application, "GetContent");
   AfterInit = rtl.createSafeCallback(pas.program.Application, "AfterInit");
-  AfterInit(true);
+  // AfterInit(true);
 };
 
 SetTitle = function(s){
