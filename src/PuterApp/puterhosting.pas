@@ -26,12 +26,15 @@ type
     constructor Create(AOwner: TComponent; AName, ATarget: string);
   end;
 
+  TModeType = (mtNewSite, mtUpdateSite);
+
   { TPuterHosting }
 
   TPuterHosting = Class(TComponent)
   private
     FSubdomain, FSiteTitle: TBulmaInput;
     FInst, FSiteTitleS: string;
+    FInstMode: TModeType;
     procedure ShowSuccess(AMessage: string);
     function ListSuccess(AValue: JSValue): JSValue;
     function HostSuccess(AValue: JSValue): JSValue;
@@ -44,9 +47,13 @@ type
     {$ENDIF}
     function CreateSite(aEvent: TJSMouseEvent): boolean;
     procedure PuterError(AError: TPuterErrorMsg);
+    procedure DeployApple2(AError: TPuterErrorMsg);
     procedure InstallBlog(ADir: TPuterFSItem);
     procedure InstallFile(ARscr, AFile: string);
     procedure InstallPyapi(ADir: TPuterFSItem);
+    procedure InstallApple2(ADir: TPuterFSItem);
+    procedure InstallApple2Res(ADir: TPuterFSItem);
+    procedure UpdateApple2(ADirList: TPuterDirList);
     function DeleteSite(aEvent: TJSMouseEvent): boolean;
     function EditSite(aEvent: TJSMouseEvent): boolean;
     procedure DatabaseLoaded(AContent: string);
@@ -146,6 +153,7 @@ procedure TPuterHosting.AddNewSite;
 var
   btn: TBulmaButton;
 begin
+  FInstMode:=mtNewSite;
   LoadHTMLLinkResources('PuterBlogger-res.html');
   with TabBody do
   begin
@@ -224,6 +232,14 @@ begin
   TabBody.setContent('There was an error: '+AError.message);
 end;
 
+procedure TPuterHosting.DeployApple2(AError: TPuterErrorMsg);
+begin
+  TabBody.Write('No apple2 installation detected, installing...');
+  Puter.OnPuterError:=@PuterError;
+  Puter.OnDirSuccess:=@InstallApple2;
+  Puter.MakeDirectory(FInst+'/apple2');
+end;
+
 procedure TPuterHosting.InstallBlog(ADir: TPuterFSItem);
 begin
   TabBody.Write('Website directory created.<br/>');
@@ -252,7 +268,37 @@ end;
 procedure TPuterHosting.InstallPyapi(ADir: TPuterFSItem);
 begin
   InstallFile('website', 'pyapi/website.py');
-  PuterAPI.hosting.create(FInst, FInst)._then(@HostSuccess);
+  Puter.OnDirSuccess:=@InstallApple2;
+  Puter.MakeDirectory(FInst+'/apple2');
+end;
+
+procedure TPuterHosting.InstallApple2(ADir: TPuterFSItem);
+begin
+  InstallFile('apple2/script', 'apple2/script.js');
+  InstallFile('apple2/tty', 'apple2/tty.js');
+  InstallFile('apple2/lores', 'apple2/lores.js');
+  InstallFile('apple2/hires', 'apple2/hires.js');
+  InstallFile('apple2/bell', 'apple2/bell.js');
+  InstallFile('apple2/dos', 'apple2/dos.js');
+  InstallFile('apple2/basic', 'apple2/basic.js');
+  InstallFile('apple2/display', 'apple2/display.css');
+  Puter.OnDirSuccess:=@InstallApple2Res;
+  Puter.MakeDirectory(FInst+'/apple2/res');
+end;
+
+procedure TPuterHosting.InstallApple2Res(ADir: TPuterFSItem);
+begin
+  InstallFile('apple2/font-40col', 'apple2/res/font-40col.png');
+  InstallFile('apple2/font-80col', 'apple2/res/font-80col.png');
+  if FInstMode = mtNewSite then
+    PuterAPI.hosting.create(FInst, FInst)._then(@HostSuccess)
+  else if FInstMode = mtUpdateSite then
+    ShowSuccess('Update Success');
+end;
+
+procedure TPuterHosting.UpdateApple2(ADirList: TPuterDirList);
+begin
+  InstallApple2(Nil);
 end;
 
 function TPuterHosting.DeleteSite(aEvent: TJSMouseEvent): boolean;
@@ -329,11 +375,15 @@ end;
 
 procedure TPuterHosting.UpdateSite(ASite: string);
 begin
+  FInstMode:=mtUpdateSite;
+  Puter.OnPuterError:=@PuterError;
   TabBody.setContent('Updating website files, please wait...');
   FInst:=ASite;
   InstallSite;
   InstallFile('website', 'pyapi/website.py');
-  ShowSuccess('Update Success');
+  Puter.OnDirListSuccess:=@UpdateApple2;
+  Puter.OnPuterError:=@DeployApple2;
+  Puter.GetDirectory(FInst+'/apple2');
 end;
 
 function TPuterHosting.SiteAction(aEvent: TJSMouseEvent): boolean;

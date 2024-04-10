@@ -40,6 +40,7 @@ function markdown(const s: string): string; external name 'window.marked.parse';
 procedure initHighlight; external name 'window.hljs.initHighlighting';
 procedure RunJS(s: string); external name 'window.eval';
 procedure RunPy(options: TJSObject); external name 'window.brython';
+procedure StartApple2; external name 'window.startApple2';
 
 procedure TMyHomePage.HandleRoute(URL: String; aRoute: TRoute; Params: TStrings
   );
@@ -67,7 +68,9 @@ begin
   else if ct = 50 then
     RunJS(FDatabase.Strings['Content'])
   else if ct = 51 then
-    RunJS('window.brython({pythonpath:[''/pyapi'']});');
+    RunJS('window.brython({pythonpath:[''/pyapi'']});')
+  else if ct = 52 then
+    StartApple2;
   //RunPy(TJSObject.new);
 end;
 
@@ -93,6 +96,7 @@ begin
     1: Result:=markdown(FDatabase.Strings['Content']); // Markdown Content
     50: Result:='Loading JavaScript Application, please wait...';
     51: Result:='<script type="text/python">'+FDatabase.Strings['Content']+'</script>';
+    52: Result:='<script type="text/applesoft-basic">'+FDatabase.Strings['Content']+'</script>';
     100: Result:=CodeHighlight('pascal',FDatabase.Strings['Content']);
     101: Result:=CodeHighlight('bash',FDatabase.Strings['Content']);
     102: Result:=CodeHighlight('python',FDatabase.Strings['Content']);
@@ -107,7 +111,8 @@ end;
 
 procedure TMyHomePage.HandleRequest;
 begin
-  GetContent('/NaR'); // This triggers the compiler to compile this method.
+  if False then
+    GetContent('/NaR'); // This triggers the compiler to compile this method.
   Router.InitHistory(hkHash);
   Router.RegisterRoute('*', @HandleRoute);
   AfterInit(False); // Registers method with compiler for export in JavaScript.
