@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="apple2.xsl"?>
+<page>
+  <script>
+0 TEXT : HOME
+10 HTAB 1 : VTAB 1
+: PRINT "PDL(0): ";PDL(0);"   "
+: PRINT "PDL(1): ";PDL(1);"   "
+: PRINT "Button #0: "; PEEK(49249);"   "
+: PRINT "Button #1: "; PEEK(49250);"   "
+20 FOR I = 1 TO 100 : NEXT : GOTO 10
+  </script>
+  <script>
+    10 PRINT "HELLO WORLD!"
+  </script>
+</page>
